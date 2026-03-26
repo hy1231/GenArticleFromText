@@ -2,7 +2,23 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run WeChat Writer",
+      "name": "Run WeChat Writer maitian_world",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "envFile": "${workspaceFolder}/.env",
+      "args": [
+        "--profile",
+        "maitian_world",
+        "--input",
+        "rawdata/maitian_world/fangdichan.md"
+      ]
+    },
+    {
+      "name": "Run WeChat Writer chenwu",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/main.py",
@@ -15,6 +31,22 @@
         "chenwu",
         "--input",
         "rawdata/chenwu/xinli.md"
+      ]
+    },
+    {
+      "name": "Run WeChat Writer maitian_info",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "envFile": "${workspaceFolder}/.env",
+      "args": [
+        "--profile",
+        "maitian_info",
+        "--input",
+        "rawdata/maitian_info/congcong.md"
       ]
     }
   ]

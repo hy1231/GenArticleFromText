@@ -126,6 +126,36 @@ def call_model(
         raise RuntimeError("模型返回为空，请稍后重试。")
     return text
 
+## 去除文章ai味
+def remove_ai_flavor(api_key: str, draft: str) -> str:
+    """第二轮调用：专门用于洗稿、去AI味、增加人感"""
+    client = genai.Client(api_key=api_key)
+    
+    # 去除ai味提示词
+    editor_prompt = """
+    你是一个拥有10年经验、的资深新媒体主编。
+    你的唯一任务是：审阅我提供的初稿，适当消除其中的“AI味”，并输出最终排版好的纯文本。
+    
+    【洗稿核心军规】：
+    1. 不要删除初稿中的任何信息点或细节，保持内容完整。
+    2. 不要添加任何新的信息点或细节，保持内容纯净。
+    3. 你可以调整句式、用词、段落结构等来去除AI生成的痕迹，但请确保不改变原意。
+    4. 不要输出任何评价或分析，直接给我修改后的最终文章文本。
+    """
+    
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", 
+        contents=f"【请帮我给以下初稿去AI味】：\n\n{draft}",
+        config=types.GenerateContentConfig(
+            system_instruction=editor_prompt,
+            temperature=0.85, # 温度稍微调高一点，让它的表达更跳跃、更像真人
+        ),
+    )
+    
+    text = (response.text or "").strip()
+    if not text:
+        raise RuntimeError("去AI味步骤模型返回为空。")
+    return text
 
 def save_output(profile: str, content: str) -> Path:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -153,19 +183,26 @@ def main() -> None:
     print(f"✅ 素材读取完成，字符数: {len(material)}")
 
     print(f"🧠 使用人设: {profile}")
-    print("⏳ 正在调用 Gemini 生成初稿，请稍候...")
+
     try:
+        print("⏳ [步骤 1/2] 正在调用 Gemini 生成初稿...")
         draft = call_model(
             api_key=api_key, profiles=profiles, profile=profile, material=material
         )
+        print("✅ 初稿生成完毕！")
+
+        print("🧽 [步骤 2/2] 毒舌主编上线，正在进行二次润色，刮骨去 AI 味...")
+        final_draft = remove_ai_flavor(api_key=api_key, draft=draft)
+        print("✅ 洗稿完成，AI味已去除！")
+
     except Exception as exc:
         print("❌ 调用大模型失败。")
         print("可能原因：代理未开启、网络超时、API Key 无效或服务暂时不可用。")
         print(f"错误详情: {exc}")
         sys.exit(1)
 
-    output_path = save_output(profile=profile, content=draft)
-    print(f"✅ 初稿已保存: {output_path.resolve()}")
+    output_path = save_output(profile=profile, content=final_draft)
+    print(f"✅ 最终定稿已保存: {output_path.resolve()}")
     print("🎉 完成！你可以直接打开 Markdown 文件继续人工微调。")
 
 
