@@ -48,10 +48,7 @@ def call_model(api_key: str,ai_model_id: str, material: str) -> str:
     
     【写作要求】：
     1. 标题要足够吸引人（提供3个可选标题放在开头）。
-    2. 开篇要有共鸣感，迅速抓住读者注意力。
-    3. 段落要短，方便手机阅读。
-    4. 语言要生活化、接地气，避免枯燥的专业术语。
-    5. 使用漂亮的 Markdown 排版。
+    2. 使用漂亮的 Markdown 排版。
     """
     
     user_prompt = f"以下是我的原始素材，请帮我写成文章：\n\n{material}"
